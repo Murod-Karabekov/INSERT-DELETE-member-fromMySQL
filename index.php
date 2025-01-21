@@ -22,52 +22,6 @@ $dsn = "mysql:dbname=$dbName;host=$host";
 
 $pdo = new PDO($dsn, $user, $password);
 
-//MO ga talabalarni qo'shish
-
-if(isset($_POST['givenName'], $_POST['city'], $_POST['birthDay'])){
-    $name = $_POST['givenName'];
-    $city = $_POST['city'];
-    $birthDay = $_POST['birthDay'];
-
-    $pdoStatement = $pdo -> prepare("
-        INSERT INTO `students`
-        (`givenName`,`city`,`birthDay`)
-        VALUES
-        (:name, :city, :birthDay)
-    ");
-
-    $pdoStatement -> bindParam(':name', $name);
-    $pdoStatement -> bindParam(':city', $city);
-    $pdoStatement -> bindParam(':birthDay', $birthDay);
-
-    if($pdoStatement -> execute()){
-        print "Ma'lumotlar yuborildi";
-    } else{
-        print "Xatolik bor!";
-    }
-
-}
-
-//MO dan talabalarni o'chirish
-
-if(isset($_POST['deleteName'])){
-    $deleteName = $_POST["deleteName"];
-
-    $pdoStatement = $pdo -> prepare("
-        DELETE FROM `students`
-        WHERE
-        givenName = :name
-    ");
-
-    $pdoStatement -> bindParam(':name', $deleteName);
-
-    if($pdoStatement -> execute()){
-        print ("Ismi {$deleteName} bo'lgan talaba muvaffaqiyatli o'chirildi.");
-    } else{
-        echo "Xatolik yuz berdi!";
-    }
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -83,6 +37,57 @@ if(isset($_POST['deleteName'])){
 
 <div class="container-fluid" text-center>
     <form method="POST" action="" class="row g-8">
+
+        <div class="alert alert-primary bg-primary-subtle" role="alert">
+            <?php
+                //MO ga talabalarni qo'shish
+
+                if(isset($_POST['givenName'], $_POST['city'], $_POST['birthDay'])){
+                    $name = $_POST['givenName'];
+                    $city = $_POST['city'];
+                    $birthDay = $_POST['birthDay'];
+
+                    $pdoStatement = $pdo -> prepare("
+                        INSERT INTO `students`
+                        (`givenName`,`city`,`birthDay`)
+                        VALUES
+                        (:name, :city, :birthDay)
+                    ");
+
+                    $pdoStatement -> bindParam(':name', $name);
+                    $pdoStatement -> bindParam(':city', $city);
+                    $pdoStatement -> bindParam(':birthDay', $birthDay);
+
+                    if($pdoStatement -> execute()){
+                        print "Ma'lumotlar yuborildi";
+                    } else{
+                        print "Xatolik bor!";
+                    }
+
+                }
+
+                //MO dan talabalarni o'chirish
+
+                if(isset($_POST['deleteName'])){
+                    $deleteName = $_POST["deleteName"];
+
+                    $pdoStatement = $pdo -> prepare("
+                        DELETE FROM `students`
+                        WHERE
+                        givenName = :name
+                    ");
+
+                    $pdoStatement -> bindParam(':name', $deleteName);
+
+                    if($pdoStatement -> execute()){
+                        print ("Ismi {$deleteName} bo'lgan talaba muvaffaqiyatli o'chirildi.");
+                    } else{
+                        echo "Xatolik yuz berdi!";
+                    }
+                }
+            ?>
+        </div>
+
         <div class="row gx-5 pt-4">
 
             <div class="col">
@@ -142,6 +147,58 @@ if(isset($_POST['deleteName'])){
             </div>
         </div>
     </form>
+</div>
+
+<div class="container-fluid" text-center>
+    <div class="row">
+        <div class="row">
+            <div class="col pt-4">
+                <h3>
+                    Userslar ro'yxati
+                </h3>
+            </div>
+        </div>
+        <div class="row gx-5 pt-4">
+            <div class="col">
+                <div class="border form-control rounded-2 border-5 border-black">
+                    <?php
+                        $pdoStatement = $pdo->prepare("SELECT * FROM `students`");
+                        
+                        if (!$pdoStatement->execute()) {
+                            echo "Xatolik yuz berdi";
+                            exit;
+                        }
+                        
+                        // Jadval boshlanishi
+                        echo "<table class='table table-bordered table-hover'>";
+                        echo "<thead class='table-dark'>";
+                        echo "<tr>";
+                        echo "<th>Ism</th>";
+                        echo "<th>Tug'ilgan Shahar</th>";
+                        echo "<th>Tug'ilgan Yil</th>";
+                        echo "</tr>";
+                        echo "</thead>";
+                        echo "<tbody>";
+
+                        // Natijalarni jadval shaklida chiqarish
+                        while ($row = $pdoStatement->fetch(PDO::FETCH_ASSOC)) {
+                            echo "<tr>";
+                            echo "<td>{$row['givenName']}</td>";
+                            echo "<td>{$row['city']}</td>";
+                            echo "<td>{$row['birthDay']}</td>";
+                            echo "</tr>";
+                        }
+
+                        // Jadvalni yopish
+                        echo "</tbody>";
+                        echo "</table>";
+
+                    ?>
+                </div>
+                
+            </div>
+        </div>
+    </div>
 </div>
 
 </body>
